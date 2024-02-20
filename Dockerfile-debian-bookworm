@@ -1,0 +1,66 @@
+FROM debian:bookworm
+
+LABEL org.opencontainers.image.authors="Stanislav Lechev (LZ2SLL) <af@0xAF.org>"
+LABEL org.opencontainers.image.source="https://github.com/0xAF/openwebrxplus-deb-builder"
+LABEL org.opencontainers.image.title="DEB packages builder for OpenWebRX+ and its dependencies"
+LABEL org.opencontainers.image.description="Builder image for OpenWebRX+ DEB packages."
+LABEL org.opencontainers.image.vendor="OpenWebRX+"
+
+ENV EMAIL=af@0xAF.org
+ENV FULLNAME="DEB packages builder for OpenWebRX+ and its dependencies"
+ENV VERSION=0.1
+
+# This is needed to ensure package installs don't prompt for any user input.
+ENV DEBIAN_FRONTEND=noninteractive
+ENV BUILDSCRIPT=https://raw.githubusercontent.com/luarvique/openwebrx/master/buildall.sh
+
+COPY docker/entrypoint.sh /entrypoint.sh
+COPY docker/build.sh /build.sh
+COPY docker/sdrplay /tmp/sdrplay
+
+RUN \
+  apt-get update && \
+  apt-get upgrade -y && \
+  apt-get install -y --no-install-recommends \
+      sudo \
+      autoconf \
+      autoconf-archive \
+      autogen \
+      automake \
+      build-essential \
+      ca-certificates \
+      cmake \
+      curl \
+      dh-autoreconf \
+      dh-make \
+      dpkg-dev \
+      g++ \
+      gcc \
+      git-buildpackage \
+      git-core \
+      make \
+      pkg-config \
+      protobuf-compiler \
+      wget \
+      libfftw3-dev \
+      libsamplerate0-dev \
+      python3-all \
+      libpython3-dev \
+      python3-setuptools \
+      dh-python \
+      librtlsdr-dev \
+      libsoapysdr-dev \
+      libprotobuf-dev \
+      libudev-dev \
+      libicu-dev \
+      libsndfile1-dev \
+      libliquid-dev \
+  && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* && \
+  chmod +x /entrypoint.sh /build.sh && \
+  cd /
+
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/build.sh"]
